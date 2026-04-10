@@ -4,15 +4,67 @@
 
 % The theorem-like environments defined below are those that appear by default
 % in the dependency graph. See the README of leanblueprint if you need help to
-% customize this. 
+% customize this.
 % The configuration below use the theorem counter for all those environments
 % (this is what the [theorem] arguments mean) and never resets it.
 % If you want for instance to number them within chapters then you can add
 % [chapter] at the end of the next line.
+ % THEOREMS
+
 \newtheorem{theorem}{Theorem}
+\newtheorem{remark}{Remark}
 \newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{observation}{Observation}
 \newtheorem{lemma}[theorem]{Lemma}
 \newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{example}{Example}
+\newtheorem{fact}{Fact}
+\newtheorem{conjecture}{Conjecture}
 
 \theoremstyle{definition}
 \newtheorem{definition}[theorem]{Definition}
+
+% QI MACROS
+
+\newcommand{\braket}[2]{\mbox{$ \langle #1 | #2 \rangle $}}
+\newcommand{\sandwich}[3]{\mbox{$ \langle #1 | #2 | #3 \rangle $}}
+\newcommand{\ket}[1]{\mbox{$ | #1 \rangle $}}
+\newcommand{\bra}[1]{\mbox{$ \langle #1 | $}}
+\newcommand{\ev}[1]{\langle #1 \rangle}
+\newcommand{\dyad}[1]{\rvert #1 \rangle \! \langle #1 \lvert}
+\newcommand{\ketbra}[2]{\lvert #1 \rangle \! \langle #2 \rvert}
+\newcommand{\expval}[2]{\langle #2 \lvert #1 \rvert  #2 \rangle}
+\newcommand{\matrixel}[3]{\langle #1 \lvert #2 \rvert  #3 \rangle}
+\newcommand{\commu}[2]{\left[ #1,\, #2 \right]}
+\newcommand{\kett}[1]{\mbox{$ | #1 \rangle \rangle$}}
+\newcommand{\braa}[1]{\mbox{$ \langle \langle #1 | $}}
+
+% MATH MACROS
+\newcommand{\id}{\mathbb{I}}
+\newcommand{\tr}{\mathop{\mathrm{Tr}}}
+\newcommand{\mc}{\mathcal}
+
+\newcommand{\norm}[1]{\left\lVert #1 \right\rVert}
+\newcommand{\abs}[1]{\left\lvert #1 \right\rvert}
+
+\newcommand{\rr}{\mathbb{R}}
+\newcommand{\cc}{\mathbb{C}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\equref}[1]{Eq.~\eqref{#1}}
+\newcommand{\equsref}[2]{Eqs.~(\ref{#1}) and (\ref{#2})}
+\newcommand{\figref}[1]{Fig.~\ref{#1}}
+\newcommand{\supfigref}[1]{Supplementary Fig.~\ref{#1}}
+\newcommand{\secref}[1]{Sec.~\ref{#1}}
+\newcommand{\refcite}[1]{Ref.~\cite{#1}}
+\newcommand{\refscite}[1]{Refs.~\onlinecite{#1}}
+\newcommand{\refsacite}[2]{Refs.~\onlinecite{#1} and \onlinecite{#2}}
+\newcommand{\tableref}[1]{Table~\ref{#1}}
+\newcommand{\appref}[1]{Supplementary Materials~\ref{#1}}
+\newcommand{\defref}[1]{Definition~\ref{#1}}
+\newcommand{\thmref}[1]{Theorem~\ref{#1}}
+\newcommand{\lemref}[1]{Lemma~\ref{#1}}
+\newcommand{\exref}[1]{Example~\ref{#1}}
+\newcommand{\corref}[1]{Corollary~\ref{#1}}
+\newcommand{\obsref}[1]{Observable~\ref{#1}}
+\newcommand{\propref}[1]{Proposition~\ref{#1}}

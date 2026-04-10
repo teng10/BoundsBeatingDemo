@@ -6,17 +6,226 @@
 % the current file can be a simple sequence of \input. Otherwise It
 % can start with a \section or \chapter for instance.
 
-\begin{theorem}[Smale 1958]
-  \label{thm:sphere_eversion}
-  \lean{sphere_eversion}
+% content.tex  —  leanblueprint for Pauli Weight Truncation Error Bounds
+% Based on: "Bounds Beating: Pauli Weight Truncation Errors" (Teng, after Angrisani et al. 2025)
+
+\chapter{Pauli Weight Truncation: Setup and Definitions}
+
+\section{Pauli Operators and Weight}
+
+\begin{definition}[Pauli group and weight]
+  \label{def:pauli-group}
+  \lean{PauliGroup}
   \leanok
-  \uses{def:immersion}
-  There is a homotopy of immersions of $𝕊^2$ into $ℝ^3$ from the inclusion map to
-  the antipodal map $a : q ↦ -q$.
+  The \emph{$n$-qubit Pauli group} $\mathcal{P}_n$ consists of all $n$-fold tensor
+  products of single-qubit Paulis $\{I, X, Y, Z\}$.  For $P \in \mathcal{P}_n$, the
+  \emph{weight} $|P|$ is the number of tensor factors that are not the identity $I$.
+\end{definition}
+
+\begin{definition}[Normalized Pauli basis]
+  \label{def:normalized-pauli-basis}
+  \lean{normalizedPauliBasis}
+  \leanok
+  The \emph{normalized Pauli basis} is
+  \[
+    \widetilde{\mathcal{P}}_n
+    \;=\;
+    \Bigl\{\tfrac{I}{\sqrt{2}},\, \tfrac{X}{\sqrt{2}},\, \tfrac{Y}{\sqrt{2}},\,
+            \tfrac{Z}{\sqrt{2}}\Bigr\}^{\!\otimes n}.
+  \]
+  Its elements satisfy $\operatorname{Tr}[s\,t] = \delta_{st}$ for all
+  $s, t \in \widetilde{\mathcal{P}}_n$.
+\end{definition}
+
+\begin{definition}[Normalized Pauli norm]
+  \label{def:pauli-norm}
+  \lean{pauliNorm}
+  \uses{def:normalized-pauli-basis}
+  \leanok
+  For an observable $O = \sum_P a_P P$ expanded in the Pauli basis, its
+  \emph{normalized Hilbert--Schmidt (Pauli) norm} is
+  \[
+    \|O\|_{\mathrm{Pauli},2}
+    \;:=\;
+    \Bigl(\sum_P a_P^2\Bigr)^{1/2}
+    \;=\; 2^{-n/2}\,\|O\|_2.
+  \]
+\end{definition}
+
+\section{Locally Scrambling Distributions}
+
+\begin{definition}[Locally scrambling layer]
+  \label{def:locally-scrambling}
+  \lean{LocallyScrambling}
+  \leanok
+  A random unitary layer $U_j$ is \emph{locally scrambling} if its distribution is
+  invariant under conjugation by independent random single-qubit Clifford gates on
+  each qubit.
+\end{definition}
+
+\begin{lemma}[Pauli orthogonality]
+  \label{lem:pauli-orthogonality}
+  \lean{pauliOrthogonality}
+  \uses{def:locally-scrambling, def:pauli-group}
+  \leanok
+  Let $U_j$ be locally scrambling. Then for any $P \neq Q$ in $\mathcal{P}_n$,
+  \[
+    \mathbb{E}_{U_j}\!\left[U_j^{\dagger\otimes 2}(P \otimes Q)\,U_j^{\otimes 2}\right] = 0.
+  \]
+\end{lemma}
+
+\begin{lemma}[Pauli mixing inequality]
+  \label{lem:pauli-mixing}
+  \lean{pauliMixing}
+  \uses{def:locally-scrambling, def:pauli-group}
+  \leanok
+  Let $U_j$ be locally scrambling and let $\rho$ be any $n$-qubit state.  For any
+  non-identity $P \in \mathcal{P}_n$,
+  \[
+    \mathbb{E}_{U_j}\!\left[\operatorname{Tr}\!\bigl(P\,U_j\rho U_j^\dagger\bigr)^2\right]
+    \;\leq\;
+    \Bigl(\tfrac{2}{3}\Bigr)^{|P|}.
+  \]
+\end{lemma}
+
+\begin{definition}[Shallow layer assumption]
+  \label{def:shallow-layer}
+  \lean{ShallowLayer}
+  \uses{def:locally-scrambling, def:pauli-group}
+  Each layer $U_j$ is \emph{shallow} if, for every $P$ of weight $|P| = k$, the
+  Heisenberg-evolved operator $U_j^\dagger P\, U_j$ expands into at most
+  $n^{\mathcal{O}(k)}$ Pauli terms.
+\end{definition}
+
+\chapter{The Weight Truncation Algorithm}
+
+\section{Recursive Definition of Truncated Observables}
+
+\begin{definition}[Truncated observable sequence]
+  \label{def:truncated-observable}
+  \lean{truncatedObservable}
+  \uses{def:normalized-pauli-basis, def:pauli-group}
+  \leanok
+  Let $U = U_L \cdots U_1$ be an $L$-layer circuit, $O$ an observable, and $k \geq 0$
+  an integer threshold.  Define a sequence $O_{L+1} := O$ and, recursively for
+  $j = L, L-1, \ldots, 1$,
+  \[
+    O_j
+    \;:=\;
+    \sum_{\substack{s \in \widetilde{\mathcal{P}}_n \\ |s| \leq k}}
+    \operatorname{Tr}\!\bigl[U_{j+1}^\dagger O_{j+1} U_{j+1} \cdot s\bigr]\,s.
+  \]
+  The \emph{weight-$k$ truncated observable} is $O_U^{(k)} := O_1$.
+\end{definition}
+
+\begin{definition}[Truncated estimator]
+  \label{def:truncated-estimator}
+  \lean{truncatedEstimator}
+  \uses{def:truncated-observable}
+  \leanok
+  Given an input state $\rho$ and a circuit $U$, the \emph{truncated estimator} is
+  \[
+    \tilde{f}_U^{(k)}(O) \;:=\; \operatorname{Tr}\!\bigl[O_U^{(k)}\,\rho\bigr].
+  \]
+  The true expectation value is $f_U(O) := \operatorname{Tr}[O\,U\rho U^\dagger]$.
+\end{definition}
+
+\section{Telescoping Decomposition of the Error}
+
+\begin{lemma}[Telescoping error decomposition]
+  \label{lem:telescoping}
+  \lean{telescopingError}
+  \uses{def:truncated-estimator, def:truncated-observable}
+  The mean squared error admits a layer-by-layer decomposition
+  \[
+    \mathbb{E}_U\!\bigl[\bigl(f_U(O) - \tilde{f}_U^{(k)}(O)\bigr)^2\bigr]
+    \;=\;
+    \sum_{j=1}^{L}
+    \mathbb{E}_U\!\Bigl[
+      \operatorname{Tr}[O_{j+1}\rho_{j+1}]^2
+      - \operatorname{Tr}[O_j \rho_j]^2
+    \Bigr],
+  \]
+  where $\rho_j = U_j \cdots U_1\,\rho\,U_1^\dagger \cdots U_j^\dagger$.
+\end{lemma}
+
+\begin{lemma}[Cross-term vanishing]
+  \label{lem:cross-terms}
+  \lean{crossTermsVanish}
+  \uses{lem:pauli-orthogonality, lem:telescoping}
+  Under the locally scrambling assumption, the cross-terms in the second-moment
+  expansion of each summand in Lemma~\ref{lem:telescoping} vanish, i.e.\
+  \[
+    \mathbb{E}_{U_j}\!\left[
+      \operatorname{Tr}[s\,U_j\rho_j U_j^\dagger]\,
+      \operatorname{Tr}[t\,U_j\rho_j U_j^\dagger]
+    \right] = 0
+    \qquad \text{for } s \neq t \in \widetilde{\mathcal{P}}_n.
+  \]
+\end{lemma}
+
+\begin{lemma}[Per-layer error bound]
+  \label{lem:per-layer}
+  \lean{perLayerBound}
+  \uses{lem:pauli-mixing, lem:cross-terms, def:pauli-norm}
+  Each non-negative summand in the telescoping decomposition satisfies
+  \[
+    \mathbb{E}_U\!\Bigl[
+      \operatorname{Tr}[O_{j+1}\rho_{j+1}]^2 - \operatorname{Tr}[O_j\rho_j]^2
+    \Bigr]
+    \;\leq\;
+    \Bigl(\tfrac{2}{3}\Bigr)^{k+1}\,\|O\|_{\mathrm{Pauli},2}^2.
+  \]
+\end{lemma}
+
+\chapter{Main Result}
+
+\begin{theorem}[Mean squared truncation error — depth-independent bound]
+  \label{thm:mse-bound}
+  \lean{mseBound}
+  \uses{lem:telescoping, lem:cross-terms, lem:per-layer,
+        def:locally-scrambling, def:truncated-estimator, def:pauli-norm}
+  \leanok
+  Let $U = U_L \cdots U_1$ be drawn from an $L$-layered locally scrambling circuit
+  distribution.  For any integer $k \geq 0$, any observable $O$, and any $n$-qubit
+  state $\rho$,
+  \[
+    \mathbb{E}_U\!\left[\bigl(f_U(O) - \tilde{f}_U^{(k)}(O)\bigr)^2\right]
+    \;\leq\;
+    \Bigl(\tfrac{2}{3}\Bigr)^{k+1}\,\|O\|_{\mathrm{Pauli},2}^2.
+  \]
+  In particular, the bound is independent of the circuit depth $L$.
 \end{theorem}
 
 \begin{proof}
-  \leanok
-  \uses{thm:open_ample, lem:open_ample_immersion}
-  This obviously follows from what we did so far.
+  Apply Lemma~\ref{lem:telescoping} to write the MSE as a sum over layers.
+  Lemma~\ref{lem:cross-terms} (using local scrambling via
+  Lemma~\ref{lem:pauli-orthogonality}) kills all cross-terms in the second-moment
+  expansion.  Lemma~\ref{lem:pauli-mixing} bounds each diagonal term by
+  $(2/3)^{k+1}$ times the relevant squared Pauli coefficient, and summing over
+  layers yields a geometric series whose value is again $(2/3)^{k+1}$ (the
+  depth-$L$ prefactor cancels).  Combining with the definition of
+  $\|\cdot\|_{\mathrm{Pauli},2}$ gives the result.
 \end{proof}
+
+\chapter{Conjectured Depth-Dependent Improvement}
+
+\begin{conjecture}[Depth-decaying MSE bound]
+  \label{conj:depth-decay}
+  \lean{depthDecayConjecture}
+  \uses{thm:mse-bound, def:locally-scrambling}
+  There exists a universal constant $c \in (0,1)$ such that, under the same
+  hypotheses as Theorem~\ref{thm:mse-bound},
+  \[
+    \mathbb{E}_U\!\left[\bigl(f_U(O) - \tilde{f}_U^{(k)}(O)\bigr)^2\right]
+    \;\leq\;
+    \Bigl(\tfrac{2}{3}\Bigr)^{k+1}\,c^L\,\|O\|_{\mathrm{Pauli},2}^2.
+  \]
+\end{conjecture}
+
+\begin{remark}
+  Conjecture~\ref{conj:depth-decay} would imply that deeper circuits are easier to
+  classically shadow: the truncated estimator becomes more accurate as $L$ grows,
+  at an exponential rate in the depth.  Proving this would require tracking
+  cancellations between layers rather than bounding each layer independently.
+\end{remark}

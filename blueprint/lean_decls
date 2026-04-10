@@ -1,0 +1,14 @@
+PauliGroup
+normalizedPauliBasis
+pauliNorm
+LocallyScrambling
+pauliOrthogonality
+pauliMixing
+ShallowLayer
+truncatedObservable
+truncatedEstimator
+telescopingError
+crossTermsVanish
+perLayerBound
+mseBound
+depthDecayConjecture
