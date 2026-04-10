@@ -1,5 +1,5 @@
-name = "Project"
-defaultTargets = ["Project"]
+name = "BoundsBeating"
+defaultTargets = ["BoundsBeating"]
 
 [leanOptions]
 pp.unicode.fun = true
@@ -15,4 +15,4 @@ git = "https://github.com/leanprover-community/mathlib4.git"
 name = "checkdecls"
 git = "https://github.com/PatrickMassot/checkdecls.git"
 [[lean_lib]]
-name = "Project"
+name = "BoundsBeating"
