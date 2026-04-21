@@ -168,6 +168,26 @@ def LocallyScrambling {n : ℕ}
     (Uj : Ω → QMatrix n) : Prop :=
   PauliMixingCondition μ Uj ∧ OrthogonalityCondition μ Uj
 
+/-! ## Heisenberg Evolution -/
+
+/-- Conjugation by a unitary (Heisenberg-picture evolution): U† · O · U. -/
+def conjAction {n : ℕ} (U : QMatrix n) (O : QMatrix n) : QMatrix n :=
+  U.conjTranspose * O * U
+
+/-- A unitary `U` is a **shallow layer** if there is a universal constant `C` such that,
+    for every Pauli string `σ` of weight `k`, the Heisenberg-evolved operator
+    `U† P_σ U` has at most `n ^ (C * k)` nonzero Pauli-basis coefficients. -/
+def ShallowLayer {n : ℕ} (U : QMatrix n) : Prop :=
+  ∃ C : ℕ, 0 < C ∧ ∀ (σ : PauliString n),
+    (Finset.univ.filter (fun τ : PauliString n =>
+      pauliCoeff n (conjAction U (nQubitPauli n σ)) τ ≠ 0)).card
+    ≤ n ^ (C * pauliWeight σ)
+
+/-- An `L`-layer circuit `U = U_L ⋯ U_1` is **shallow** if every layer `U j`
+    is a shallow unitary in the sense of `ShallowLayer`. -/
+def ShallowCircuit {n L : ℕ} (U : Fin L → QMatrix n) : Prop :=
+  ∀ j, ShallowLayer (U j)
+
 /-! ## Circuit Measurability -/
 
 structure CircuitMeasurability {n L : ℕ}
@@ -176,16 +196,10 @@ structure CircuitMeasurability {n L : ℕ}
   layer_measurable : ∀ j, Measurable (U j)
   layer_unitary : ∀ j, ∀ᵐ ω ∂μ, IsUnitaryMatrix (U j ω)
 
-/-! ## Weight Truncation and Circuit Composition -/
-
 /-- Weight truncation: project an observable onto Pauli components of weight ≤ k. -/
 def weightTruncate (n : ℕ) (k : ℕ) (O : QMatrix n) : QMatrix n :=
   ∑ σ : PauliString n,
     if pauliWeight σ ≤ k then pauliCoeff n O σ • normalizedPauliBasis n σ else 0
-
-/-- Conjugation by a unitary (Heisenberg-picture evolution): U† · O · U. -/
-def conjAction {n : ℕ} (U : QMatrix n) (O : QMatrix n) : QMatrix n :=
-  U.conjTranspose * O * U
 
 /-- Evolve through a unitary layer and weight-truncate: O ↦ Π_k(U† O U). -/
 def evolveAndTruncate (n : ℕ) (k : ℕ) (U : QMatrix n) (O : QMatrix n) : QMatrix n :=
@@ -271,5 +285,4 @@ theorem mseBound
           truncatedEstimator n L k (fun j => U j ω) O ρ‖ ^ 2 ∂μ
       ≤ ((2 : ℝ) / 3) ^ (k + 1) * pauliNormSq n O := by
   sorry
-
 end

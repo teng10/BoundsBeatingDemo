@@ -5,10 +5,7 @@ LocallyScrambling
 pauliOrthogonality
 pauliMixing
 ShallowLayer
+ShallowCircuit
 truncatedObservable
 truncatedEstimator
-telescopingError
-crossTermsVanish
-perLayerBound
 mseBound
-depthDecayConjecture

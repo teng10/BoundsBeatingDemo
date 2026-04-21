@@ -97,6 +97,16 @@
   $n^{\mathcal{O}(k)}$ Pauli terms.
 \end{definition}
 
+\begin{definition}[Shallow circuit]
+  \label{def:shallow-circuit}
+  \lean{ShallowCircuit}
+  \uses{def:shallow-layer}
+  An $L$-layer circuit $U = U_L \cdots U_1$ is \emph{shallow} if every layer
+  $U_j$ satisfies the shallow layer assumption (Definition~\ref{def:shallow-layer}).
+  In particular, for any $P$ of weight $|P| = k$, the fully Heisenberg-evolved
+  operator $U^\dagger P\, U$ expands into at most $n^{\mathcal{O}(kL)}$ Pauli terms.
+\end{definition}
+
 \chapter{The Weight Truncation Algorithm}
 
 \section{Recursive Definition of Truncated Observables}
@@ -130,60 +140,62 @@
   The true expectation value is $f_U(O) := \operatorname{Tr}[O\,U\rho U^\dagger]$.
 \end{definition}
 
-\section{Telescoping Decomposition of the Error}
+% The proof intermediate steps are organized into three lemmas but not currently formalized
+% \section{Telescoping Decomposition of the Error}
 
-\begin{lemma}[Telescoping error decomposition]
-  \label{lem:telescoping}
-  \lean{telescopingError}
-  \uses{def:truncated-estimator, def:truncated-observable}
-  The mean squared error admits a layer-by-layer decomposition
-  \[
-    \mathbb{E}_U\!\bigl[\bigl(f_U(O) - \tilde{f}_U^{(k)}(O)\bigr)^2\bigr]
-    \;=\;
-    \sum_{j=1}^{L}
-    \mathbb{E}_U\!\Bigl[
-      \operatorname{Tr}[O_{j+1}\rho_{j+1}]^2
-      - \operatorname{Tr}[O_j \rho_j]^2
-    \Bigr],
-  \]
-  where $\rho_j = U_j \cdots U_1\,\rho\,U_1^\dagger \cdots U_j^\dagger$.
-\end{lemma}
+% \begin{lemma}[Telescoping error decomposition]
+%   \label{lem:telescoping}
+%   \lean{telescopingError}
+%   \uses{def:truncated-estimator, def:truncated-observable}
+%   The mean squared error admits a layer-by-layer decomposition
+%   \[
+%     \mathbb{E}_U\!\bigl[\bigl(f_U(O) - \tilde{f}_U^{(k)}(O)\bigr)^2\bigr]
+%     \;=\;
+%     \sum_{j=1}^{L}
+%     \mathbb{E}_U\!\Bigl[
+%       \operatorname{Tr}[O_{j+1}\rho_{j+1}]^2
+%       - \operatorname{Tr}[O_j \rho_j]^2
+%     \Bigr],
+%   \]
+%   where $\rho_j = U_j \cdots U_1\,\rho\,U_1^\dagger \cdots U_j^\dagger$.
+% \end{lemma}
 
-\begin{lemma}[Cross-term vanishing]
-  \label{lem:cross-terms}
-  \lean{crossTermsVanish}
-  \uses{lem:pauli-orthogonality, lem:telescoping}
-  Under the locally scrambling assumption, the cross-terms in the second-moment
-  expansion of each summand in Lemma~\ref{lem:telescoping} vanish, i.e.\
-  \[
-    \mathbb{E}_{U_j}\!\left[
-      \operatorname{Tr}[s\,U_j\rho_j U_j^\dagger]\,
-      \operatorname{Tr}[t\,U_j\rho_j U_j^\dagger]
-    \right] = 0
-    \qquad \text{for } s \neq t \in \widetilde{\mathcal{P}}_n.
-  \]
-\end{lemma}
+% \begin{lemma}[Cross-term vanishing]
+%   \label{lem:cross-terms}
+%   \lean{crossTermsVanish}
+%   \uses{lem:pauli-orthogonality, lem:telescoping}
+%   Under the locally scrambling assumption, the cross-terms in the second-moment
+%   expansion of each summand in Lemma~\ref{lem:telescoping} vanish, i.e.\
+%   \[
+%     \mathbb{E}_{U_j}\!\left[
+%       \operatorname{Tr}[s\,U_j\rho_j U_j^\dagger]\,
+%       \operatorname{Tr}[t\,U_j\rho_j U_j^\dagger]
+%     \right] = 0
+%     \qquad \text{for } s \neq t \in \widetilde{\mathcal{P}}_n.
+%   \]
+% \end{lemma}
 
-\begin{lemma}[Per-layer error bound]
-  \label{lem:per-layer}
-  \lean{perLayerBound}
-  \uses{lem:pauli-mixing, lem:cross-terms, def:pauli-norm}
-  Each non-negative summand in the telescoping decomposition satisfies
-  \[
-    \mathbb{E}_U\!\Bigl[
-      \operatorname{Tr}[O_{j+1}\rho_{j+1}]^2 - \operatorname{Tr}[O_j\rho_j]^2
-    \Bigr]
-    \;\leq\;
-    \Bigl(\tfrac{2}{3}\Bigr)^{k+1}\,\|O\|_{\mathrm{Pauli},2}^2.
-  \]
-\end{lemma}
+% \begin{lemma}[Per-layer error bound]
+%   \label{lem:per-layer}
+%   \lean{perLayerBound}
+%   \uses{lem:pauli-mixing, lem:cross-terms, def:pauli-norm}
+%   Each non-negative summand in the telescoping decomposition satisfies
+%   \[
+%     \mathbb{E}_U\!\Bigl[
+%       \operatorname{Tr}[O_{j+1}\rho_{j+1}]^2 - \operatorname{Tr}[O_j\rho_j]^2
+%     \Bigr]
+%     \;\leq\;
+%     \Bigl(\tfrac{2}{3}\Bigr)^{k+1}\,\|O\|_{\mathrm{Pauli},2}^2.
+%   \]
+% \end{lemma}
 
 \chapter{Main Result}
 
 \begin{theorem}[Mean squared truncation error — depth-independent bound]
   \label{thm:mse-bound}
   \lean{mseBound}
-  \uses{lem:telescoping, lem:cross-terms, lem:per-layer,
+  \uses{
+    % lem:telescoping, lem:cross-terms, lem:per-layer,
         def:locally-scrambling, def:truncated-estimator, def:pauli-norm}
   % \leanok
   Let $U = U_L \cdots U_1$ be drawn from an $L$-layered locally scrambling circuit
@@ -212,7 +224,7 @@
 
 \begin{conjecture}[Depth-decaying MSE bound]
   \label{conj:depth-decay}
-  \lean{depthDecayConjecture}
+  % \lean{depthDecayConjecture}
   \uses{thm:mse-bound, def:locally-scrambling}
   There exists a universal constant $c \in (0,1)$ such that, under the same
   hypotheses as Theorem~\ref{thm:mse-bound},
